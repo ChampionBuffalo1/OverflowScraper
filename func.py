@@ -1,6 +1,7 @@
 import logging
 from io import StringIO
 from utils import get_img_format
+from typing import Callable, Awaitable
 from bs4.element import NavigableString, Tag
 from types import MappingProxyType as FrozenDict
 # Setting up the logger with a custom format
@@ -51,15 +52,23 @@ async def extract_code(child: Tag) -> str:
         result = string_io.getvalue()
     return result
 
-async def convert_em(child: Tag) -> str:
-    assert child.name == "em"
-    result = "\\text{{{0}}}"
-    return result.format(child.string)
+async def extract_list_item(child: Tag) -> str:
+    assert child.name == "li"
+    result = ""
+    with StringIO() as string_io:
+        for c in child:
+            if c == "\n": continue
+            await get_content(c, string_io)
+        result = string_io.getvalue()
+    return result
 
-async def get_br(child: Tag):
-    assert child.name == "br"
-    return "\n"
-
+def mathjax_equivalent(html_tag: str, mathjax_tag: str, resolve_tag: bool = False) -> Callable[[Tag], Awaitable[str]]:
+    async def convert(child: Tag) -> str:
+        assert child.name == html_tag
+        if resolve_tag:
+            return mathjax_tag
+        return mathjax_tag.format(child.string)
+    return convert
 
 jump_table = FrozenDict({
     "p": extract_paragraph,
@@ -67,9 +76,11 @@ jump_table = FrozenDict({
     "ol": extract_list,
     "img": extract_img,
     "pre": extract_code,
+    "li": extract_list_item,
     # Extra
-    "br": get_br,
-    "em": convert_em 
+    "br": mathjax_equivalent("br", "\n", True),
+    "em": mathjax_equivalent("em", "\\text{{{0}}}"),
+    "strong": mathjax_equivalent("strong", "\\boldsymbol{{{0}}}"),
 })
 
 async def get_content(child: Tag, contentIO: StringIO) -> None:
