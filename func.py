@@ -1,11 +1,9 @@
-import logging
 from io import StringIO
 from utils import get_img_format
 from typing import Callable, Awaitable
 from bs4.element import NavigableString, Tag
 from types import MappingProxyType as FrozenDict
-# Setting up the logger with a custom format
-logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+from NoSuchTagException import NoSuchTagException
 
 async def extract_paragraph(child: Tag) -> str:
     assert child.name == "p"
@@ -96,6 +94,4 @@ async def get_content(child: Tag, contentIO: StringIO) -> None:
         contentIO.write(str_content)
         contentIO.write("\n")
     else:
-        # Leaving the log for development purpose
-        logging.warning("Unknown element \"{0}\"".format(child.name))
-        raise Exception("Unknown element \"{0}\"".format(child.name))
+        raise NoSuchTagException("Unknown element \"{0}\"".format(child.name))
