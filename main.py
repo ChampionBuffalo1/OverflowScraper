@@ -2,10 +2,14 @@ import sys
 import json
 import asyncio
 import aiohttp
+import logging
 from bs4 import BeautifulSoup, SoupStrainer
 
 from parse import parse_content, parse_options
 from utils import find_numerical, encode, decode, get_year
+
+# Setting up the logger with a custom format
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 data = {}
 skipped_pages = []
@@ -78,8 +82,8 @@ async def parse_page(url: str, html: str) -> None:
     data[url]["options"] = opts
     try:
         data[url]["content"] = await parse_content(content)
-    except Exception:
-        print(f"Failed to parse content for {url}")
+    except NoSuchTagException as tag_ex:
+
         # If we failed to parse the content due to some unknow tag then skip the page
         skipped_pages.append({
             "url": url,
@@ -97,7 +101,7 @@ async def get_page(session: any, url: str) -> None:
     async with session.get(url) as response:
         html = await response.text()
         if response.status != 200:
-            print(f"Error: {response.status} while fetching {url}")
+            logging.error(f"Response {response.status} while fetching {url}")
             return
         await parse_page(url, html)
 
@@ -107,7 +111,7 @@ async def main(FILE_NAME: str) -> None:
         with open(FILE_NAME+".txt", "r") as fp:
             tasks = [get_page(session, line.strip()) for line in fp if line.startswith("http")]
             await asyncio.gather(*tasks)
-    print(f"Found {len(data)} questions. Dumping now")
+    logging.info(f"Found {len(data)} questions. Dumping to JSON")
     json.dump(data, open(f"{FILE_NAME}.json", "w"), indent=4)
     json.dump(skipped_pages, open(f"{FILE_NAME}.skipped.json", "w"), indent=4)
 
