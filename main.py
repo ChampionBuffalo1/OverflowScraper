@@ -76,7 +76,18 @@ async def parse_page(url: str, html: str) -> None:
         return
     
     data[url]["options"] = opts
-    data[url]["content"] = await parse_content(content)
+    try:
+        data[url]["content"] = await parse_content(content)
+    except Exception:
+        print(f"Failed to parse content for {url}")
+        # If we failed to parse the content due to some unknow tag then skip the page
+        skipped_pages.append({
+            "url": url,
+            "year": year,
+            "tags": tags,
+            "html.gz": gzipped_html
+        })
+        del data[url]
 
 
 async def get_page(session: any, url: str) -> None: 

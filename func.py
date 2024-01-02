@@ -96,4 +96,6 @@ async def get_content(child: Tag, contentIO: StringIO) -> None:
         contentIO.write(str_content)
         contentIO.write("\n")
     else:
+        # Leaving the log for development purpose
         logging.warning("Unknown element \"{0}\"".format(child.name))
+        raise Exception("Unknown element \"{0}\"".format(child.name))
