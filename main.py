@@ -84,7 +84,7 @@ async def parse_page(url: str, html: str) -> None:
     try:
         data[url]["content"] = await parse_content(content)
     except NoSuchTagException as tag_ex:
-        logging.info(f"Skipping {url} because of unknown tag {tag_ex.message}")
+        logging.info(f"Skipping {url} because of unrecognized HTML tag: {tag_ex.tag}")
         # If we failed to parse the content due to some unknow tag then skip the page
         skipped_pages.append({
             "url": url,
