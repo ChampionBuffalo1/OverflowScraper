@@ -85,6 +85,9 @@ async def get_page(session: any, url: str) -> None:
     if year is None or year < oldest_year_allowed: return
     async with session.get(url) as response:
         html = await response.text()
+        if response.status != 200:
+            print(f"Error: {response.status} while fetching {url}")
+            return
         await parse_page(url, html)
 
 
@@ -93,6 +96,7 @@ async def main(FILE_NAME: str) -> None:
         with open(FILE_NAME+".txt", "r") as fp:
             tasks = [get_page(session, line.strip()) for line in fp if line.startswith("http")]
             await asyncio.gather(*tasks)
+    print(f"Found {len(data)} questions. Dumping now")
     json.dump(data, open(f"{FILE_NAME}.json", "w"), indent=4)
     json.dump(skipped_pages, open(f"{FILE_NAME}.skipped.json", "w"), indent=4)
 
