@@ -90,10 +90,9 @@ async def get_page(session: any, url: str) -> None:
 
 async def main(FILE_NAME: str) -> None:
     async with aiohttp.ClientSession() as session:
-    #    with open(FILE_NAME+".txt", "r") as fp:
-    #        tasks = [get_page(session, line.strip()) for line in fp if line.startswith("http")]
-    #        await asyncio.gather(*tasks)
-       await get_page(session, "https://gateoverflow.in/399278/gate-cse-2023-question-33")
+        with open(FILE_NAME+".txt", "r") as fp:
+            tasks = [get_page(session, line.strip()) for line in fp if line.startswith("http")]
+            await asyncio.gather(*tasks)
     json.dump(data, open(f"{FILE_NAME}.json", "w"), indent=4)
     json.dump(skipped_pages, open(f"{FILE_NAME}.skipped.json", "w"), indent=4)
 
@@ -101,5 +100,5 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python main.py <file_name>")
         exit(1)
-    file_name = sys.argv[1]
+    file_name = sys.argv[1].replace(".txt", "")
     asyncio.run(main(file_name))
