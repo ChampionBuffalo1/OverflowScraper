@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup, SoupStrainer
 
 from parse import parse_content, parse_options
 from utils import find_numerical, encode, decode, get_year
+from NoSuchTagException import NoSuchTagException
 
 # Setting up the logger with a custom format
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
