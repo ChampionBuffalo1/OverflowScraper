@@ -36,7 +36,7 @@ async def parse_page(url: str, html: str) -> None:
 
     gzipped_html = encode(div.prettify())
 
-    # Ignoring descriptive and questions before 2008 (Storing them for later)
+    # Ignoring descriptive and questions before `oldest_year_allowed` (Storing them for later)
     if "descriptive" in tags or year is None or year < oldest_year_allowed:
         skipped_pages.append({
             "url": url,
@@ -80,7 +80,7 @@ async def parse_page(url: str, html: str) -> None:
 
 
 async def get_page(session: any, url: str) -> None: 
-    # Not requesting html of questions that were asked before 
+    # Not requesting html of questions that were asked before specified year
     year = get_year(url)
     if year is None or year < oldest_year_allowed: return
     async with session.get(url) as response:
