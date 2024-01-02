@@ -94,4 +94,4 @@ async def get_content(child: Tag, contentIO: StringIO) -> None:
         contentIO.write(str_content)
         contentIO.write("\n")
     else:
-        raise NoSuchTagException("Unknown element \"{0}\"".format(child.name))
+        raise NoSuchTagException(child.name)
