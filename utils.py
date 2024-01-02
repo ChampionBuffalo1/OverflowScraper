@@ -1,3 +1,4 @@
+import re
 import gzip
 import base64
 
@@ -18,6 +19,15 @@ def find_numerical(tags: list[str]) -> bool:
             if opt.startswith(tag):
                 return True
     return False
+
+tag_year_regex = re.compile(r"gate\-?(cse|it|\-)?\-?(\d{4})")
+def get_year(string: str) -> [int, None]:
+    match = tag_year_regex.search(string)
+    if match:
+        year = int(match.group(2))
+        return year
+    return None
+
 
 def get_img_format(src: str) -> str:
     return "#img_{{{0}}}".format(src)
