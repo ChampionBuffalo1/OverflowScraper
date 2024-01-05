@@ -39,7 +39,7 @@ async def parse_page(url: str, html: str) -> None:
         year = get_year(tag)
         break
 
-    gzipped_html = encode(div.prettify())
+    gzipped_html = encode(str(div))
 
     # Ignoring descriptive and questions before `oldest_year_allowed` (Storing them for later)
     if "descriptive" in tags or year is None or year < oldest_year_allowed:
